@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/home/edvard/Dev/engraVis/build",
+  "command": "/usr/bin/g++ -DENGRAVINGS_DIR=\\\"/home/edvard/Dev/engraVis/engravings/\\\" -DPROJECT_DIR=\\\"/home/edvard/Dev/engraVis/\\\" -DSHADER_DIR=\\\"/home/edvard/Dev/engraVis/shaders/\\\" -I/home/edvard/Dev/engraVis/include -g -o CMakeFiles/engraVis.dir/src/main.cpp.o -c /home/edvard/Dev/engraVis/src/main.cpp",
+  "file": "/home/edvard/Dev/engraVis/src/main.cpp",
+  "output": "CMakeFiles/engraVis.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/edvard/Dev/engraVis/build",
+  "command": "/usr/bin/g++ -DENGRAVINGS_DIR=\\\"/home/edvard/Dev/engraVis/engravings/\\\" -DPROJECT_DIR=\\\"/home/edvard/Dev/engraVis/\\\" -DSHADER_DIR=\\\"/home/edvard/Dev/engraVis/shaders/\\\" -I/home/edvard/Dev/engraVis/include -g -o CMakeFiles/engraVis.dir/src/shader.cpp.o -c /home/edvard/Dev/engraVis/src/shader.cpp",
+  "file": "/home/edvard/Dev/engraVis/src/shader.cpp",
+  "output": "CMakeFiles/engraVis.dir/src/shader.cpp.o"
+},
+{
+  "directory": "/home/edvard/Dev/engraVis/build",
+  "command": "/usr/bin/g++ -DENGRAVINGS_DIR=\\\"/home/edvard/Dev/engraVis/engravings/\\\" -DPROJECT_DIR=\\\"/home/edvard/Dev/engraVis/\\\" -DSHADER_DIR=\\\"/home/edvard/Dev/engraVis/shaders/\\\" -I/home/edvard/Dev/engraVis/include -g -o CMakeFiles/engraVis.dir/src/model.cpp.o -c /home/edvard/Dev/engraVis/src/model.cpp",
+  "file": "/home/edvard/Dev/engraVis/src/model.cpp",
+  "output": "CMakeFiles/engraVis.dir/src/model.cpp.o"
+},
+{
+  "directory": "/home/edvard/Dev/engraVis/build",
+  "command": "/usr/bin/gcc -DENGRAVINGS_DIR=\\\"/home/edvard/Dev/engraVis/engravings/\\\" -DPROJECT_DIR=\\\"/home/edvard/Dev/engraVis/\\\" -DSHADER_DIR=\\\"/home/edvard/Dev/engraVis/shaders/\\\" -I/home/edvard/Dev/engraVis/include -g -o CMakeFiles/engraVis.dir/external/glad.c.o -c /home/edvard/Dev/engraVis/external/glad.c",
+  "file": "/home/edvard/Dev/engraVis/external/glad.c",
+  "output": "CMakeFiles/engraVis.dir/external/glad.c.o"
+}
+]

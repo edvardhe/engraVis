@@ -1,0 +1,3 @@
+/home/edvard/Dev/engraVis/build/CMakeFiles/engraVis.dir
+/home/edvard/Dev/engraVis/build/CMakeFiles/edit_cache.dir
+/home/edvard/Dev/engraVis/build/CMakeFiles/rebuild_cache.dir
