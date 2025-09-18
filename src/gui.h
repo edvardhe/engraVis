@@ -29,13 +29,17 @@ public:
     void setRotation(const glm::vec3& in);
     float getScale() const;
     void setScale(const float scale);
+    glm::vec2 getJoystickPos() const;
+    void setJoystickPos(const glm::vec2& pos);
     bool wireframeEnabled() const;
+    glm::vec3 getLightDirection() const;
 
 private:
     glm::vec3 rot_deg;
     float scale_val;
     bool wire;
     GLFWwindow* window;
+    glm::vec2 joystickPos;
 };
 
 #endif

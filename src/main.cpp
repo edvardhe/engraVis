@@ -90,9 +90,15 @@ int main() {
         SHADER_DIR "zshading.vert",
         SHADER_DIR "zshading.frag");
 
-    zshader.use();
+    //zshader.use();
 
-    Shader current = zshader;
+    Shader lighting = Shader(
+        SHADER_DIR "lighting.vert",
+        SHADER_DIR "lighting.frag");
+
+    lighting.use();
+
+    Shader current = lighting;
 
     glm::mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
@@ -110,6 +116,7 @@ int main() {
     glm::mat4 rot;
     glm::mat4 translate;
     glm::mat4 model_matrix;
+    glm::mat3 normalMatrix;
     scale = glm::mat4(1.0f);
     glm::vec3 rot_deg = {0.0f, 0.0f, 0.0f};
     float model_scale = 1.0f;
@@ -121,6 +128,8 @@ int main() {
     float lastFrame = 0.0f;
 
     int fbWidth, fbHeight;
+
+    glm::vec3 lightDir = glm::vec3(0.0f, 0.0f, 1.0f);
 
 
     // IMGUI SETUP
@@ -179,11 +188,19 @@ int main() {
         // LOGIC
 
         model_matrix = translate * rot * scale;
+        normalMatrix = glm::transpose(glm::inverse(glm::mat3(model_matrix)));
 
         unsigned int modelLoc = glGetUniformLocation(current.ID, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));   
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
-        glfwPollEvents();    
+        unsigned int normalMatLoc = glGetUniformLocation(current.ID, "normalMatrix");
+        glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+        glfwPollEvents();
+
+        glm::vec3 lightDir = gui.getLightDirection();
+        unsigned int lightDirLoc = glGetUniformLocation(current.ID, "lightDir");
+        glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
 
         // DRAW
 
