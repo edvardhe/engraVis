@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "model.h"
 #include "gui.h"
+#include "debug_window.h"
 
 void processMovement(GLFWwindow *window, glm::vec3& rot, glm::mat4& translate, float deltaTime)
 {
@@ -79,12 +80,7 @@ int main() {
     }  
 
     Model model(ENGRAVINGS_DIR "cross.obj");
-
-    Shader dummy = Shader(
-        SHADER_DIR "dummy.vert",
-        SHADER_DIR "dummy.frag"); 
-        
-    dummy.use();
+    DebugWindow debug_window = DebugWindow();
 
     Shader zshader = Shader(
         SHADER_DIR "zshading.vert",
@@ -92,12 +88,18 @@ int main() {
 
     //zshader.use();
 
+    Shader depthShader = Shader(
+        SHADER_DIR "depth.vert",
+        SHADER_DIR "depth.frag");
+
+    depthShader.use();
+
     Shader lighting = Shader(
         SHADER_DIR "lighting.vert",
         SHADER_DIR "lighting.frag");
 
     lighting.use();
-
+    
     Shader current = lighting;
 
     glm::mat4 projection;
@@ -140,6 +142,28 @@ int main() {
     }
 
     glEnable(GL_DEPTH_TEST);
+
+    // create depth texture
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);  
+
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+                SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
     while (!glfwWindowShouldClose(window))
     {
@@ -186,7 +210,7 @@ int main() {
         else      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // LOGIC
-
+        current.use();
         model_matrix = translate * rot * scale;
         normalMatrix = glm::transpose(glm::inverse(glm::mat3(model_matrix)));
 
@@ -204,11 +228,57 @@ int main() {
 
         // DRAW
 
+        // SHADOW PASS
+        depthShader.use();
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        float near_plane = 1.0f, far_plane = 5.5f;
+        glm::mat4 lightProjection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, near_plane, far_plane);
+
+        glm::vec3 modelCenter = glm::vec3(model_matrix[3]);
+        glm::mat4 lightView = glm::lookAt(modelCenter + lightDir * 2.0f, modelCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 lightSpace = lightProjection * lightView;
+
+        depthShader.use();
+        unsigned int lightSpaceLoc = glGetUniformLocation(depthShader.ID, "lightSpaceMatrix");
+        glUniformMatrix4fv(lightSpaceLoc, 1, GL_FALSE, glm::value_ptr(lightSpace));
+
+        unsigned int modelLocDepth = glGetUniformLocation(depthShader.ID, "model");
+        glUniformMatrix4fv(modelLocDepth, 1, GL_FALSE, glm::value_ptr(model_matrix));
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        model.draw(depthShader);
+        
+        // RENDER PASS
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, width, height);
+
+        current.use();
+
+        // Bind shadow map texture to texture unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+
+        // Set shadowMap uniform to use texture unit 0
+        unsigned int shadowMapLoc = glGetUniformLocation(current.ID, "shadowMap");
+        glUniform1i(shadowMapLoc, 0);
+
+        // Pass lightSpace matrix to lighting shader
+        unsigned int lightSpaceLocLighting = glGetUniformLocation(current.ID, "lightSpaceMatrix");
+        glUniformMatrix4fv(lightSpaceLocLighting, 1, GL_FALSE, glm::value_ptr(lightSpace));
+
         model.draw(current);
+
+        //debug_window.draw(depthMap);
+
         gui.render();
 
         glfwPollEvents();
         glfwSwapBuffers(window);
+
     }
 
     gui.shutdown();

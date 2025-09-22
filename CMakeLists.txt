@@ -22,6 +22,7 @@ add_executable(engraVis
     src/shader.cpp
     src/model.cpp
     src/gui.cpp
+    src/debug_window.cpp
     external/glad.c
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
